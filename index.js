@@ -2,6 +2,7 @@
 
 // Load .env file (DISCORD_TOKEN=...)
 require('dotenv').config();
+require("./health");
 
 const {
   Client,
