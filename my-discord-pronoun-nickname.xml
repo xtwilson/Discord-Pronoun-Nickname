@@ -1,39 +1,13 @@
-<Container>
-  <Name>Discord-Pronoun-Nickname</Name>
-  <Repository>keenaanee/discord-pronoun-nickname:latest</Repository>
-  <Registry>https://hub.docker.com/r/keenaanee/discord-pronoun-nickname</Registry>
+<config>
+  <message>
+    <content>Select your pronouns:</content>
+  </message>
 
-  <Network>bridge</Network>
-  <MyIP/>
-  <Shell>bash</Shell>
-  <Privileged>false</Privileged>
-
-  <!-- Optional metadata -->
-  <Support>https://github.com/keenaanee/Discord-Pronoun-Nickname/issues</Support>
-  <Project>https://github.com/keenaanee/Discord-Pronoun-Nickname</Project>
-  <Overview>
-    Discord bot that adds pronoun tags to user nicknames based on button selections
-    (e.g. Name [She/They / Xe/Xem]). Requires DISCORD_TOKEN environment variable.
-  </Overview>
-  <Category>Other:Tools</Category>
-  <WebUI></WebUI>
-
-  <Icon>https://raw.githubusercontent.com/keenaanee/Discord-Pronoun-Nickname/main/path/to/icon.png</Icon>
-  <ExtraParams></ExtraParams>
-  <PostArgs></PostArgs>
-  <CPUset></CPUset>
-
-  <Environment>
-    <Variable>
-      <Name>DISCORD_TOKEN</Name>
-      <Value></Value>
-      <Mode></Mode>
-    </Variable>
-  </Environment>
-
-  <!-- No volumes or ports needed for this bot -->
-  <Data></Data>
-  <Port></Port>
-
-  <Version>latest</Version>
-</Container>
+  <buttons>
+    <button label="she/her" value="she/her" />
+    <button label="he/him" value="he/him" />
+    <button label="they/them" value="they/them" />
+    <button label="she/they" value="she/they" />
+    <button label="he/they" value="he/they" />
+  </buttons>
+</config>
