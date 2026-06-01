@@ -150,29 +150,25 @@ client.on("interactionCreate", async (interaction) => {
     return;
   }
 
-  // Build new nickname
-  let newName;
+// Build the new nickname
+let newNickname = `${baseName} • ${selectedPronouns}`;
 
-  if (pronouns === "use my name") {
-    newName = baseName;
-  } else if (pronouns === "ask me") {
-    newName = `${baseName} [Ask Me]`;
-  } else {
-    newName = `${baseName} [${pronouns}]`;
-  }
+// Discord nickname limit is 32 characters
+if (newNickname.length > 32) {
+    newNickname = newNickname.slice(0, 32);
+}
 
-  try {
-    await member.setNickname(newName);
+try {
+    await interaction.member.setNickname(newNickname);
     await interaction.reply({
-      content: `Updated your nickname to **${newName}**`,
-      ephemeral: true,
+        content: `Your pronouns have been set to **${selectedPronouns}**!`,
+        ephemeral: true
     });
-  } catch (err) {
-    console.error(err);
+} catch (error) {
+    console.error("Failed to update nickname:", error);
     await interaction.reply({
-      content:
-        "I couldn't update your nickname. Please check my permissions in this server.",
-      ephemeral: true,
+        content: "I couldn't update your nickname. Please check my permissions in this server.",
+        ephemeral: true
     });
   }
 });
