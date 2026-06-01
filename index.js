@@ -52,12 +52,12 @@ for (let i = 0; i < buttons.length; i += 3) {
   const row = new ActionRowBuilder();
 
   buttons.slice(i, i + 3).forEach((btn, index) => {
-    const label = btn.label?.trim() || "unknown";
-    const value = btn.value?.trim() || "unknown";
+    const label = btn.$?.label?.trim() || "unknown";
+    const value = btn.$?.value?.trim() || "unknown";
 
     // Generate safe, unique customId
     const baseId = value.replace(/\s+/g, "_").toLowerCase();
-    const id = `${baseId}_${i + index}`; // unique suffix
+    const id = `${baseId}_${i + index}`;
 
     row.addComponents(
       new ButtonBuilder()
@@ -69,6 +69,7 @@ for (let i = 0; i < buttons.length; i += 3) {
 
   rows.push(row);
 }
+
 
 
  // Send the message with buttons
