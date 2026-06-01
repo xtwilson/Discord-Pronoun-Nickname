@@ -12,10 +12,11 @@
     <!-- Row 2 -->
     <button label="she/they" value="she/they" />
     <button label="he/they" value="he/they" />
+    <button label="any pronouns" value="any pronouns" />
 
     <!-- Row 3 -->
-    <button label="any pronouns" value="any pronouns" />
     <button label="ask me" value="ask me" />
     <button label="use my name" value="use my name" />
+    <button label="clear pronouns" value="clear_pronouns" />
   </buttons>
 </config>
