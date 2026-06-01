@@ -4,10 +4,18 @@
   </message>
 
   <buttons>
+    <!-- Row 1 -->
     <button label="she/her" value="she/her" />
     <button label="he/him" value="he/him" />
     <button label="they/them" value="they/them" />
+
+    <!-- Row 2 -->
     <button label="she/they" value="she/they" />
     <button label="he/they" value="he/they" />
+
+    <!-- Row 3 -->
+    <button label="any pronouns" value="any pronouns" />
+    <button label="ask me" value="ask me" />
+    <button label="use my name" value="use my name" />
   </buttons>
 </config>
