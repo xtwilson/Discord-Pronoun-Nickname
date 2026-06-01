@@ -47,27 +47,29 @@ client.once(Events.ClientReady, async () => {
   const buttons = config.buttons.button;
 
   // Build rows of buttons (3 per row)
-  const rows = [];
-  for (let i = 0; i < buttons.length; i += 3) {
-    const row = new ActionRowBuilder();
+// Build rows of buttons (3 per row)
+const rows = [];
+for (let i = 0; i < buttons.length; i += 3) {
+  const row = new ActionRowBuilder();
 
-    buttons.slice(i, i + 3).forEach((btn) => {
-      const label = btn.label?.trim() || "unknown";
-      const value = btn.value?.trim() || "unknown";
+  buttons.slice(i, i + 3).forEach((btn, index) => {
+    const label = btn.label?.trim() || "unknown";
+    const value = btn.value?.trim() || "unknown";
 
-      // Generate safe customId
-      const id = value.replace(/\s+/g, "_").toLowerCase();
+    // Generate safe, unique customId
+    const baseId = value.replace(/\s+/g, "_").toLowerCase();
+    const id = `${baseId}_${i + index}`; // <-- unique suffix
 
-      row.addComponents(
-        new ButtonBuilder()
-          .setCustomId(id)
-          .setLabel(label)
-          .setStyle(ButtonStyle.Primary)
-      );
-    });
+    row.addComponents(
+      new ButtonBuilder()
+        .setCustomId(id)
+        .setLabel(label)
+        .setStyle(ButtonStyle.Primary)
+    );
+  });
 
-    rows.push(row);
-  }
+  rows.push(row);
+}
 
  // Send the message with buttons
   await channel.send({
