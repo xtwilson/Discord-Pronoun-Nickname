@@ -77,14 +77,13 @@ client.once(Events.ClientReady, async () => {
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isButton()) return;
 
+  await interaction.deferReply({ ephemeral: true }); // <-- prevents ALL interaction failures
+
   const { buttons } = await loadPronounConfig();
   const selected = buttons.find((b) => b.id === interaction.customId);
 
   if (!selected) {
-    return interaction.reply({
-      content: "Unknown button.",
-      ephemeral: true,
-    });
+    return interaction.editReply("Unknown button.");
   }
 
   const selectedPronouns = selected.value;
@@ -101,18 +100,15 @@ client.on(Events.InteractionCreate, async (interaction) => {
   try {
     await interaction.member.setNickname(newNickname);
 
-    return interaction.reply({
-      content: `Your pronouns have been set to **${selectedPronouns}**!`,
-      ephemeral: true,
-    });
+    return interaction.editReply(
+      `Your pronouns have been set to **${selectedPronouns}**!`
+    );
   } catch (error) {
     console.error("Nickname update failed:", error);
 
-    return interaction.reply({
-      content:
-        "I couldn't update your nickname. Please check my permissions in this server.",
-      ephemeral: true,
-    });
+    return interaction.editReply(
+      "I couldn't update your nickname. Please check my permissions in this server."
+    );
   }
 });
 
