@@ -77,7 +77,8 @@ client.once(Events.ClientReady, async () => {
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isButton()) return;
 
-  await interaction.deferReply({ ephemeral: true }); // <-- prevents ALL interaction failures
+  // ⭐ FIX: Prevents Discord from timing out
+  await interaction.deferReply({ ephemeral: true });
 
   const { buttons } = await loadPronounConfig();
   const selected = buttons.find((b) => b.id === interaction.customId);
@@ -111,5 +112,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
     );
   }
 });
+
 
 client.login(process.env.DISCORD_TOKEN);
