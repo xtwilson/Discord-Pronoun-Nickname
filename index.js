@@ -1,6 +1,4 @@
 require("dotenv").config();
-require("./health");
-
 const {
   Client,
   GatewayIntentBits,
@@ -10,24 +8,8 @@ const {
   ButtonBuilder,
   ButtonStyle,
 } = require("discord.js");
-
 const fs = require("fs");
 const xml2js = require("xml2js");
-
-// Load XML config
-async function loadPronounConfig() {
-  const xml = fs.readFileSync("my-discord-pronoun-nickname.xml", "utf8");
-  const parsed = await xml2js.parseStringPromise(xml);
-
-  const messageText = parsed.config.message[0].content[0];
-  const buttons = parsed.config.buttons[0].button.map((btn) => ({
-    id: btn.$.id,
-    label: btn.$.label,
-    value: btn.$.value,
-  }));
-
-  return { messageText, buttons };
-}
 
 // Create Discord client
 const client = new Client({
@@ -37,93 +19,97 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
-  partials: [Partials.GuildMember],
+  partials: [Partials.Channel],
 });
+
+// Load XML config
+function loadXMLConfig() {
+  const xml = fs.readFileSync("my-discord-pronoun-nickname.xml", "utf8");
+  let parsed = null;
+
+  xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+    if (err) throw err;
+    parsed = result.config;
+  });
+
+  return parsed;
+}
 
 // When bot is ready
 client.once(Events.ClientReady, async () => {
   console.log(`Logged in as ${client.user.tag}`);
 
-  const { messageText, buttons } = await loadPronounConfig();
-
-// Build rows of buttons (3 per row)
-const rows = [];
-for (let i = 0; i < buttons.length; i += 3) {
-  const row = new ActionRowBuilder();
-
-  buttons.slice(i, i + 3).forEach((btn) => {
-    const label = btn.label?.trim() || "unknown";
-    const value = btn.value?.trim() || "unknown";
-
-    // Generate a safe customId
-    const id = value.replace(/\s+/g, "_").toLowerCase();
-
-    row.addComponents(
-      new ButtonBuilder()
-        .setCustomId(id)
-        .setLabel(label)
-        .setStyle(ButtonStyle.Primary)
-    );
-  });
-
-  rows.push(row);
-}
-});
-
-if (row.components.length > 0) rows.push(row);
-  }
-
-  // Post buttons to the configured channel
+  const config = loadXMLConfig();
   const channelId = process.env.PRONOUN_CHANNEL_ID;
   const channel = await client.channels.fetch(channelId);
 
-  if (channel) {
-    await channel.send({ content: messageText, components: rows });
-    console.log("Pronoun buttons posted.");
-  } else {
-    console.error("Channel not found. Check PRONOUN_CHANNEL_ID.");
+  const messageContent = config.message.content;
+  const buttons = config.buttons.button;
+
+  // Build rows of buttons (3 per row)
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += 3) {
+    const row = new ActionRowBuilder();
+
+    buttons.slice(i, i + 3).forEach((btn) => {
+      const label = btn.label?.trim() || "unknown";
+      const value = btn.value?.trim() || "unknown";
+
+      // Generate safe customId
+      const id = value.replace(/\s+/g, "_").toLowerCase();
+
+      row.addComponents(
+        new ButtonBuilder()
+          .setCustomId(id)
+          .setLabel(label)
+          .setStyle(ButtonStyle.Primary)
+      );
+    });
+
+    rows.push(row);
   }
+
+ // Send the message with buttons
+  await channel.send({
+    content: messageContent,
+    components: rows,
+  });
+
+  console.log("Pronoun buttons posted.");
 });
 
 // Handle button interactions
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isButton()) return;
 
-  // ⭐ FIX: Prevents Discord from timing out
-  await interaction.deferReply({ ephemeral: true });
+  const member = interaction.member;
+  const baseName = member.displayName.split("•")[0].trim();
+  const selected = interaction.customId;
 
-  const { buttons } = await loadPronounConfig();
-  const selected = buttons.find((b) => b.id === interaction.customId);
+  let newNickname = baseName;
 
-  if (!selected) {
-    return interaction.editReply("Unknown button.");
+  if (selected !== "clear_pronouns") {
+    newNickname = `${baseName} • ${selected}`;
   }
 
-  const selectedPronouns = selected.value;
-
-  // Build nickname
-  const baseName = interaction.member.displayName.split(" • ")[0].split("(")[0].trim();
-  let newNickname = `${baseName} • ${selectedPronouns}`;
-
-  // Enforce Discord's 32‑character limit
   if (newNickname.length > 32) {
     newNickname = newNickname.slice(0, 32);
   }
 
   try {
-    await interaction.member.setNickname(newNickname);
-
-    return interaction.editReply(
-      `Your pronouns have been set to **${selectedPronouns}**!`
-    );
-  } catch (error) {
-    console.error("Nickname update failed:", error);
-
-    return interaction.editReply(
-      "I couldn't update your nickname. Please check my permissions in this server."
-    );
+    await member.setNickname(newNickname);
+    await interaction.reply({
+      content: `Updated your pronouns to **${selected}**`,
+      ephemeral: true,
+    });
+  } catch (err) {
+    console.error(err);
+    await interaction.reply({
+      content: "I couldn't update your nickname. Check my role position.",
+      ephemeral: true,
+    });
   }
 });
 
-
+// Login
 client.login(process.env.DISCORD_TOKEN);
